@@ -71,16 +71,24 @@ namespace UserApi.Controllers
         {
             try
             {
-                var result = await _userService.UpdateUserAsync(userId, userDetailsDto);
-
-                if (result is true)
+                if(ModelState.IsValid)
                 {
-                    return Ok("User was updated successfully.");
+                    var result = await _userService.UpdateUserAsync(userId, userDetailsDto);
+
+                    if (result is true)
+                    {
+                        return Ok("User was updated successfully.");
+                    }
+                    else
+                    {
+                        return NotFound("User with the ID was not found");
+                    }
                 }
                 else
                 {
-                    return NotFound("User with the ID was not found");
+                    return BadRequest(ModelState);
                 }
+                
             }
             catch (Exception ex)
             {

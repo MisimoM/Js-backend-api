@@ -11,7 +11,6 @@ namespace User.Business.Mappers
             addressEntity.AddressLine_2 = dto.AddressLine_2;
             addressEntity.PostalCode = dto.PostalCode;
             addressEntity.City = dto.City;
-
         }
     }
 }

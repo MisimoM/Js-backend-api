@@ -59,7 +59,7 @@ namespace User.Business.Services
             catch (Exception ex) { Debug.WriteLine(ex.Message); throw; }
         }
 
-        public async Task<AddressEntity> GetAddressAsync(int? addressId)
+        public async Task<AddressEntity> GetAddressAsync(int addressId)
         {
             try
             {

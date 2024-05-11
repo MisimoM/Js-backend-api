@@ -1,37 +1,63 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Admin.Business.Dtos;
+using Admin.Business.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using User.Business.Dtos;
-using User.Business.Services;
 
-namespace UserApi.Controllers
+namespace AdminApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AddressController(AddressService addressService) : ControllerBase
+    public class AdminController(AdminService adminService) : ControllerBase
     {
-        private readonly AddressService _addressService = addressService;
+        private readonly AdminService _adminService = adminService;
+
 
         [HttpPost]
-        public async Task<IActionResult> CreateAddressAsync(string userId, AddressDto dto)
+        public async Task<IActionResult> CreateAdminAsync(AdminDto dto)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    var result = await _addressService.CreateAddressAsync(userId, dto);
-                    
+                    var result = await _adminService.CreateNewAdminAsync(dto);
+
                     if (result is true)
                     {
-                        return Ok("Address created successfully.");
+                        return Ok("Admin created successfully.");
                     }
                     else
                     {
-                        return Conflict("User already has an address.");
+                        return Conflict("Email already exists.");
                     }
                 }
                 else
                 {
                     return BadRequest(ModelState);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+            }
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteAdminAsync(string userId)
+        {
+            try
+            {
+                var result = await _adminService.DeleteAdminAsync(userId);
+
+                if (result is true)
+                {
+                    return Ok("User was deleted successfully.");
+                }
+                else
+                {
+                    return NotFound("User with the ID was not found");
                 }
             }
             catch (Exception ex)
@@ -43,27 +69,28 @@ namespace UserApi.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateAddressAsync(string userId, AddressDto dto)
+        public async Task<IActionResult> UpdateAdminAsync(string userId, AdminDto adminDto)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    var result = await _addressService.UpdateAddressAsync(userId, dto);
+                    var result = await _adminService.UpdateAdminAsync(userId, adminDto);
 
                     if (result is true)
                     {
-                        return Ok("Address updated successfully.");
+                        return Ok("User was updated successfully.");
                     }
                     else
                     {
-                        return NotFound("User or address not found.");
+                        return NotFound("User with the ID was not found");
                     }
                 }
                 else
                 {
                     return BadRequest(ModelState);
                 }
+
             }
             catch (Exception ex)
             {
@@ -74,11 +101,11 @@ namespace UserApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAddressAsync(int addressId)
+        public async Task<IActionResult> GetAdminsAsync()
         {
             try
             {
-                var result = await _addressService.GetAddressAsync(addressId);
+                var result = await _adminService.GetAdminsAsync();
 
                 if (result is not null)
                 {
@@ -86,7 +113,7 @@ namespace UserApi.Controllers
                 }
                 else
                 {
-                    return NotFound();
+                    return NotFound("No admins found");
                 }
             }
             catch (Exception ex)
