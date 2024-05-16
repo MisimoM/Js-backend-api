@@ -1,13 +1,15 @@
 ﻿using Admin.Business.Dtos;
 using Admin.Business.Services;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+
 
 namespace AdminApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class AdminController(AdminService adminService) : ControllerBase
     {
         private readonly AdminService _adminService = adminService;
@@ -123,5 +125,28 @@ namespace AdminApi.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
             }
         }
+
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetAdminByIdAsync(string userId)
+        {
+            try
+            {
+                var admin = await _adminService.GetAdminByIdAsync(userId);
+                if (admin is not null)
+                {
+                    return Ok(admin);
+                }
+                else
+                {
+                    return NotFound("User with the ID was not found");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+            }
+        }
+
     }
 }

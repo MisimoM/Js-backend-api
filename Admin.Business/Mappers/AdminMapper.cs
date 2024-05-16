@@ -15,5 +15,16 @@ namespace Admin.Business.Mappers
                 UserName = dto.Email,
             };
         }
+
+        public static AdminDto MapToDto(AdminEntity entity)
+        {
+            return new AdminDto
+            {
+                Id = entity.Id,
+                FirstName = entity.FirstName,
+                LastName = entity.LastName,
+                Email = entity.Email!,
+            };
+        }
     }
 }

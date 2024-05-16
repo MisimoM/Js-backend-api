@@ -5,15 +5,15 @@ namespace Admin.Business.Mappers
 {
     public class AdminUpdateMapper
     {
-        public static void MapToEntity(AdminDto dto, AdminEntity admin)
+        public static void MapToEntity(AdminDto dto, AdminEntity entity)
         {
-            admin.FirstName = dto.FirstName;
-            admin.LastName = dto.LastName;
-            admin.Email = dto.Email;
+            entity.FirstName = dto.FirstName;
+            entity.LastName = dto.LastName;
+            entity.Email = dto.Email;
 
-            admin.NormalizedEmail = dto.Email;
-            admin.UserName = dto.Email;
-            admin.NormalizedUserName = dto.Email;
+            entity.NormalizedEmail = dto.Email;
+            entity.UserName = dto.Email;
+            entity.NormalizedUserName = dto.Email;
 
         }
     }

@@ -84,5 +84,22 @@ namespace Admin.Business.Services
             }
             catch (Exception ex) { Debug.WriteLine(ex.Message); throw; }
         }
+
+        public async Task<AdminDto?> GetAdminByIdAsync(string userId)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user is not null)
+                {
+                    var roles = await _userManager.GetRolesAsync(user);
+                    var adminDto = AdminMapper.MapToDto(user);
+                    adminDto.Role = roles.FirstOrDefault()!;
+                    return adminDto;
+                }
+                return null;
+            }
+            catch (Exception ex) { Debug.WriteLine(ex.Message); throw; }
+        }
     }
 }

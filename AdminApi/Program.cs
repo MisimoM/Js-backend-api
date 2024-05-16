@@ -5,38 +5,42 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-
 builder.Services.AddControllers();
+builder.Services.AddCors();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<AdminDbContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("AdminDb")));
+
+builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
+
+builder.Services.AddAuthorization();
+
 
 builder.Services.AddIdentityCore<AdminEntity>(x =>
 {
     x.User.RequireUniqueEmail = true;
     x.SignIn.RequireConfirmedAccount = false;
 
-})  .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<AdminDbContext>();
+}).AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<AdminDbContext>()
+    .AddApiEndpoints();
 
+builder.Services.AddDbContext<AdminDbContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("AdminDb")));
 builder.Services.AddScoped<AdminService>();
 
 var app = builder.Build();
+app.UseCors(x => x.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
+app.MapIdentityApi<AdminEntity>();
+app.UseAuthentication();
 app.UseAuthorization();
-
+//app.UseHttpsRedirection();
 app.MapControllers();
 
 using(var scope = app.Services.CreateScope())
