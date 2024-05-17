@@ -16,7 +16,7 @@ namespace AdminApi.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> CreateAdminAsync(AdminDto dto)
+        public async Task<IActionResult> CreateAdminAsync(AdminRegistrationDto dto)
         {
             try
             {
@@ -71,7 +71,7 @@ namespace AdminApi.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateAdminAsync(string userId, AdminDto adminDto)
+        public async Task<IActionResult> UpdateAdminAsync(string userId, AdminUpdateDto adminDto)
         {
             try
             {

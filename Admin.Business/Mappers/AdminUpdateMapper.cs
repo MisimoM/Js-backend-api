@@ -5,7 +5,7 @@ namespace Admin.Business.Mappers
 {
     public class AdminUpdateMapper
     {
-        public static void MapToEntity(AdminDto dto, AdminEntity entity)
+        public static void MapToEntity(AdminUpdateDto dto, AdminEntity entity)
         {
             entity.FirstName = dto.FirstName;
             entity.LastName = dto.LastName;

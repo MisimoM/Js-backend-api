@@ -11,7 +11,7 @@ namespace Admin.Business.Services
     {
         private readonly UserManager<AdminEntity> _userManager = userManager;
 
-        public async Task<bool> CreateNewAdminAsync(AdminDto adminDto)
+        public async Task<bool> CreateNewAdminAsync(AdminRegistrationDto adminDto)
         {
             try
             {
@@ -19,7 +19,7 @@ namespace Admin.Business.Services
 
                 if (isUniqueEmail is null)
                 {
-                    var adminEntity = AdminMapper.MapToEntity(adminDto);
+                    var adminEntity = AdminRegistrationMapper.MapToEntity(adminDto);
                     await _userManager.CreateAsync(adminEntity, adminDto.Password);
                     await _userManager.AddToRoleAsync(adminEntity, adminDto.Role);
                     return true;
@@ -47,7 +47,7 @@ namespace Admin.Business.Services
             catch (Exception ex) { Debug.WriteLine(ex.Message); throw; }
         }
 
-        public async Task<bool> UpdateAdminAsync(string userId, AdminDto adminDto)
+        public async Task<bool> UpdateAdminAsync(string userId, AdminUpdateDto adminDto)
         {
             try
             {
@@ -69,15 +69,25 @@ namespace Admin.Business.Services
             catch (Exception ex) { Debug.WriteLine(ex.Message); throw; }
         }
 
-        public async Task<List<AdminEntity>> GetAdminsAsync()
+        public async Task<List<AdminResponseDto>> GetAdminsAsync()
         {
             try
             {
-                var admins = await _userManager.Users.ToListAsync();
+                var adminsEntities = await _userManager.Users.ToListAsync();
+                var adminDtos = new List<AdminResponseDto>();
 
-                if (admins is not null)
+                foreach (var admins in adminsEntities)
                 {
-                    return admins;
+                    var roles = await _userManager.GetRolesAsync(admins);
+                    var adminDto = AdminResponseMapper.MapToDto(admins);
+                    adminDto.Role = roles.FirstOrDefault()!;
+
+                    adminDtos.Add(adminDto);
+                }
+
+                if (adminDtos is not null)
+                {
+                    return adminDtos;
                 }
 
                 return null!;
@@ -85,7 +95,7 @@ namespace Admin.Business.Services
             catch (Exception ex) { Debug.WriteLine(ex.Message); throw; }
         }
 
-        public async Task<AdminDto?> GetAdminByIdAsync(string userId)
+        public async Task<AdminResponseDto> GetAdminByIdAsync(string userId)
         {
             try
             {
@@ -93,11 +103,12 @@ namespace Admin.Business.Services
                 if (user is not null)
                 {
                     var roles = await _userManager.GetRolesAsync(user);
-                    var adminDto = AdminMapper.MapToDto(user);
+                    var adminDto = AdminResponseMapper.MapToDto(user);
                     adminDto.Role = roles.FirstOrDefault()!;
                     return adminDto;
                 }
-                return null;
+
+                return null!;
             }
             catch (Exception ex) { Debug.WriteLine(ex.Message); throw; }
         }
