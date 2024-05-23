@@ -64,15 +64,39 @@ namespace User.Business.Services
             catch (Exception ex) { Debug.WriteLine(ex.Message); throw; }
         }
 
-        public async Task<List<UserEntity>> GetUsersAsync()
+        public async Task<List<UserResponseDto>> GetUsersAsync()
         {
             try
             {
-                var users = await _userManager.Users.ToListAsync();
+                var userEntities = await _userManager.Users.ToListAsync();
+                var userDtos = new List<UserResponseDto>();
 
-                if (users is not null)
+                foreach (var entity in userEntities)
                 {
-                    return users;
+                    var userDto = UserResponseMapper.MapToDto(entity);
+
+                    userDtos.Add(userDto);
+                }
+
+                if (userDtos is not null)
+                {
+                    return userDtos;
+                }
+
+                return null!;
+            }
+            catch (Exception ex) { Debug.WriteLine(ex.Message); throw; }
+        }
+
+        public async Task<UserResponseDto> GetUserByIdAsync(string userId)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user is not null)
+                {
+                    var userDto = UserResponseMapper.MapToDto(user);
+                    return userDto;
                 }
 
                 return null!;

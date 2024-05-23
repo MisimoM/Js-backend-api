@@ -121,5 +121,27 @@ namespace UserApi.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
             }
         }
+
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetUserByIdAsync(string userId)
+        {
+            try
+            {
+                var user = await _userService.GetUserByIdAsync(userId);
+                if (user is not null)
+                {
+                    return Ok(user);
+                }
+                else
+                {
+                    return NotFound("User with the ID was not found");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+            }
+        }
     }
 }
