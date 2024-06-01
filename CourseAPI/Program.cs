@@ -5,6 +5,9 @@ using CourseAPI.GraphQL.Mutations;
 using CourseAPI.GraphQL.Queries;
 using CourseAPI.GraphQL.Types;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +26,10 @@ builder.Configuration
 string dbString = builder.Configuration["DbString"]!;
 string dbName = builder.Configuration["DbName"]!;
 
+string JwtIssuer = builder.Configuration["JwtSettings:Issuer"]!;
+string JwtAudience = builder.Configuration["JwtSettings:Audience"]!;
+string JwtKey = builder.Configuration["JwtSettings:Key"]!;
+
 builder.Services.AddPooledDbContextFactory<CourseDbContext>(x =>
 {
     x.UseCosmos(dbString, dbName)
@@ -34,7 +41,29 @@ builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddGraphQLServer()
     .AddQueryType<Query>()
     .AddMutationType<CourseMutation>()
-    .AddType<CourseType>();
+    .AddType<CourseType>()
+    .AddAuthorization();
+
+builder.Services.AddAuthentication(x =>
+{
+    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(x =>
+{
+    x.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidIssuer = JwtIssuer,
+        ValidAudience = JwtAudience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtKey)),
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true
+    };
+});
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -56,6 +85,7 @@ if (app.Environment.IsDevelopment())
 
 //app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

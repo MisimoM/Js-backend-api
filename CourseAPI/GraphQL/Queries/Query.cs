@@ -1,8 +1,10 @@
 ﻿using Course.Business.Interfaces;
 using Course.Business.Models;
+using HotChocolate.Authorization;
 
 namespace CourseAPI.GraphQL.Queries
 {
+    [Authorize]
     public class Query(ICourseService courseService)
     {
         private readonly ICourseService _courseService = courseService;
